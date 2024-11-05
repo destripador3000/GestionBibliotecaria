@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión Bibliotecaria</title>
+</head>
+<body>
+    <h1>Préstamos</h1>
+    <form action="{{ url_for('registrar_prestamo') }}" method="POST">
+        <input type="text" name="libro" placeholder="Libro" required>
+        <input type="text" name="usuario" placeholder="Usuario" required>
+        <input type="text" name="fecha" placeholder="Fecha (YYYY-MM-DD)" required>
+        <button type="submit">Registrar Préstamo</button>
+    </form>
+
+    <ul>
+    {% for prestamo in prestamos %}
+        <li>{{ prestamo.libro }} - {{ prestamo.usuario }} - {{ prestamo.fecha }}
+            <a href="{{ url_for('eliminar_prestamo', id=prestamo.id) }}">Eliminar</a>
+            <form action="{{ url_for('crear_multa', prestamo_id=prestamo.id) }}" method="POST" style="display: inline;">
+                <input type="text" name="valor" placeholder="Valor Multa" required>
+                <input type="text" name="fecha" placeholder="Fecha Multa" required>
+                <button type="submit">Crear Multa</button>
+            </form>
+        </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
