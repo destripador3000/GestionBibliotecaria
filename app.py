@@ -27,47 +27,31 @@ with app.app_context():
 # Rutas
 @app.route('/')
 def index():
-    prestamos = Prestamo.query.all()
-    return render_template('index.html', prestamos=prestamos)
+    
+    return render_template('index.html')
 
-@app.route('/prestamos/registrar', methods=['POST'])
+@app.route('/registrar_prestamo', methods=['GET','POST'])
 def registrar_prestamo():
-    libro = request.form['libro']
-    usuario = request.form['usuario']
-    fecha = request.form['fecha']
-    nuevo_prestamo = Prestamo(libro=libro, usuario=usuario, fecha=fecha)
-    db.session.add(nuevo_prestamo)
-    db.session.commit()
-    flash('Préstamo registrado con éxito.')
-    return redirect(url_for('index'))
+    # Código para manejar el registro del préstamo
+    return render_template('prestamos.html')
 
-@app.route('/prestamos/eliminar/<int:id>')
-def eliminar_prestamo(id):
-    prestamo = Prestamo.query.get(id)
-    if prestamo:
-        db.session.delete(prestamo)
-        db.session.commit()
-        flash('Préstamo eliminado con éxito.')
-    return redirect(url_for('index'))
+@app.route('/registrar_multa', methods=['GET','POST'])
+def registrar_multa():
+    # Código para manejar el registro del préstamo
+    return render_template('multas.html')
 
-@app.route('/multas/crear/<int:prestamo_id>', methods=['POST'])
-def crear_multa(prestamo_id):
-    valor = request.form['valor']
-    fecha = request.form['fecha']
-    nueva_multa = Multa(prestamo_id=prestamo_id, valor=valor, fecha=fecha)
-    db.session.add(nueva_multa)
-    db.session.commit()
-    flash('Multa creada con éxito.')
-    return redirect(url_for('index'))
+@app.route('/informacionLibro', methods=['GET','POST'])
+def mostrarInformacion():
+    return render_template('informacionLibro.html')
 
-@app.route('/multas/eliminar/<int:id>')
-def eliminar_multa(id):
-    multa = Multa.query.get(id)
-    if multa:
-        db.session.delete(multa)
-        db.session.commit()
-        flash('Multa eliminada con éxito.')
-    return redirect(url_for('index'))
+#@app.route('/prestamos')
+#def prestamo():
+#    prestamos = Prestamo.query.all()
+#    return render_template('prestamos.html', prestamos=prestamos)
+#@app.route('/multas')
+#def prestamo():
+#    prestamos = Prestamo.query.all()
+#    return render_template('multas.html', prestamos=prestamos)
 
 if __name__ == '__main__':
     app.run(debug=True)
