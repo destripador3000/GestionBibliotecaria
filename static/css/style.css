@@ -8,6 +8,7 @@ body {
     padding: 0;
     overflow-x: hidden;
     min-height: 100vh;
+    
 }
 
 /* Contenedor centrado */
@@ -19,7 +20,7 @@ body {
 .bg-white {
     padding: 1rem;
     border-radius: 0.75rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 8px 8px 15px black;
 }
 /* Fondo general de la página */
 .background-image {
@@ -43,6 +44,15 @@ body {
     background-color: white;
     padding: 16px;
     border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 8px 8px 15px black;
     text-align: center;
+}
+.imagen {
+    position: absolute;
+    bottom: 20px; 
+    right: 70px;   
+    width: 120px;  
+    height: auto;  
+    border-radius: 8px ;
+    box-shadow: 10px 10px 10px black;
 }
