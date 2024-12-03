@@ -13,12 +13,10 @@
     <!-- Contenedor para centrar el contenido -->
     <div class="d-flex justify-content-center align-items-center d-flex-center">
         <div class="text-center bg-white">
-            <h1>Multas</h1>
-            <form action="{{ url_for('registrar_multa') }}" method="POST">
-                <input type="text" class="form-control mb-3" name="libro" placeholder="Libro" required>
-                <input type="text" class="form-control mb-3" name="usuario" placeholder="Usuario" required>
-                <input type="text" class="form-control mb-3" name="Código" placeholder="Código" required>
-                <button type="submit" class="btn btn-danger">Eliminar Multa</button>
+            <h1>consultar Prestamo</h1>
+            <form action="{{ url_for('consultarPrestamo') }}" method="POST">
+                <input type="number" class="form-control mb-3" name="Código" placeholder="Código del prestamo" required>
+                <button type="submit" class="btn btn-danger">buscar</button>
             </form>
             <a href="{{ url_for('index') }}" class="btn btn-light">Inicio</a>
         </div>
@@ -26,4 +24,3 @@
     <img class="imagen" src="static\images\univalle.png" alt="">
 </body>
 </html>
-

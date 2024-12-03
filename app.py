@@ -68,5 +68,17 @@ def eliminarPrestamos():
         return redirect(url_for('index'))
     return render_template('eliminarPrestamos.html')
 
+@app.route('/consultarPrestamo', methods=['GET', 'POST'])
+def consultarPrestamo():
+    if request.method == 'POST':
+        flash('prestamo consultado con éxito.')
+        return redirect(url_for('index'))
+    return render_template('consultarPrestamo.html')
+@app.route('/modificarPrestamo', methods=['GET', 'POST'])
+def modificarPrestamo():
+    if request.method == 'POST':
+        flash('Préstamo modificado con éxito.')
+        return redirect(url_for('index'))
+    return render_template('modificarPrestamo.html')
 if __name__ == '__main__':
     app.run(debug=True)
