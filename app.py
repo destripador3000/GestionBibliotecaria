@@ -12,8 +12,14 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-@app.route('/')
+    
+@app.route('/', methods=['GET', 'POST'])
+def loggin():
+    if request.method == 'POST':
+        # Aquí se podrían validar las credenciales más tarde.
+        return redirect(url_for('index'))  # Redirigir a la página principal después del login.
+    return render_template('loggin.html')
+@app.route('/index')
 def index():
     return render_template('index.html')
 
