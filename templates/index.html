@@ -14,17 +14,13 @@
             <h1 class="title">Gestión Bibliotecaria</h1>
             <form action="">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Buscar Libro por su código" aria-label="Recipient's username with two button addons">
+                    <input type="text" class="form-control codigo" placeholder="Buscar Libro por su código" aria-label="Recipient's username with two button addons">
                     <button class="btn btn-danger" type="button">Buscar</button>
                 </div>
             </form>
-            <a href="{{ url_for('gestionLibro') }}" class="btn btn-danger mt-3">gestion libro</a>
             <a href="{{ url_for('registrar_multa') }}" class="btn btn-danger mt-3">Multas</a>
             <a href="{{ url_for('registrar_prestamo') }}" class="btn btn-light mt-3">Préstamos</a>
-            <a href="{{ url_for('loggin') }}" class="btn btn-danger mt-3">salir</a>
-
         </div>
     </div>
-    <img class="imagen" src="static\images\univalle.png" alt="">
 </body>
 </html>

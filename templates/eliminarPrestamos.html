@@ -13,15 +13,11 @@
         <div class="text-center content-box">
             <h1>Préstamos</h1>
             <form action="{{ url_for('registrar_prestamo') }}" method="POST">
-                <input type="text" class="form-control mb-3" name="Préstamo" placeholder="Código del prestamo" required>
+                <input type="text" class="form-control mb-3" name="Préstamo" placeholder="Código o ID Persona" required>
                 <button type="submit" class="btn btn-danger">Eliminar Préstamo</button>
             </form>
             <a href="{{ url_for('index') }}" class="btn btn-light">Inicio</a>
-            <a href="{{ url_for('registrar_prestamo') }}" class="btn btn-light">volver</a>
-
-            
         </div>
     </div>
-    <img class="imagen" src="static\images\univalle.png" alt="">
 </body>
 </html>
