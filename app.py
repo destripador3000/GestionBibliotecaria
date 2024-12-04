@@ -12,14 +12,8 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-    
-@app.route('/', methods=['GET', 'POST'])
-def loggin():
-    if request.method == 'POST':
-        # Aquí se podrían validar las credenciales más tarde.
-        return redirect(url_for('index'))  # Redirigir a la página principal después del login.
-    return render_template('loggin.html')
-@app.route('/index')
+
+@app.route('/')
 def index():
     return render_template('index.html')
 
@@ -74,43 +68,26 @@ def eliminarPrestamos():
         return redirect(url_for('index'))
     return render_template('eliminarPrestamos.html')
 
-@app.route('/consultarPrestamo', methods=['GET', 'POST'])
-def consultarPrestamo():
-    if request.method == 'POST':
-        flash('prestamo consultado con éxito.')
-        return redirect(url_for('index'))
-    return render_template('consultarPrestamo.html')
-@app.route('/modificarPrestamo', methods=['GET', 'POST'])
-def modificarPrestamo():
-    if request.method == 'POST':
-        flash('Préstamo modificado con éxito.')
-        return redirect(url_for('index'))
-    return render_template('modificarPrestamo.html')
-@app.route('/gestionLibro', methods=['GET', 'POST'])
-def gestionLibro():
-    if request.method == 'POST':
-        return redirect(url_for('index')) 
-    return render_template('gestionLibro.html')
-@app.route('/agregarLibro', methods=['GET', 'POST'])
-def agregarLibro():
-    if request.method == 'POST':
-        return redirect(url_for('index')) 
-    return render_template('agregarLibro.html')
-@app.route('/eliminarLibro', methods=['GET', 'POST'])
-def eliminarLibro():
-    if request.method == 'POST':
-        return redirect(url_for('index')) 
-    return render_template('eliminarLibro.html')
+@app.route('/index', methods=['GET'])
+def buscar_libro():
+    # Obtén el parámetro enviado en la URL
+    codigo_libro = request.args.get('codigo', None)
+    
+    if codigo_libro:
+        # Lógica para buscar el libro en la base de datos
+        libro = Prestamo.query.filter_by(libro=codigo_libro).first()
+        
+        if libro:
+            # Retorna información del libro si se encuentra
+            return render_template('resultado_busqueda.html', libro=libro)
+        else:
+            flash('No se encontró ningún libro con el código proporcionado.', 'warning')
+            return redirect(url_for('index'))
+    
+    # Si no se proporciona un código, redirigir al inicio
+    flash('Por favor, proporciona un código de libro.', 'danger')
+    return redirect(url_for('index'))
 
-@app.route('/modificarLibro', methods=['GET', 'POST'])
-def modificarLibro():
-    if request.method == 'POST':
-        return redirect(url_for('index')) 
-    return render_template('modificarLibro.html')
-@app.route('/consultarLibro', methods=['GET', 'POST'])
-def consultarLibro():
-    if request.method == 'POST':
-        return redirect(url_for('index')) 
-    return render_template('consultarLibro.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
