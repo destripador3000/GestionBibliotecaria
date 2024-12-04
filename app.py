@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
 from datetime import datetime
-from models import Prestamo, db  # Importa db desde models.py
+from models import Prestamo, db, Libro, Usuario  # Importa db desde models.py
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -12,8 +12,14 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-@app.route('/')
+    
+@app.route('/', methods=['GET', 'POST'])
+def logginPrincipal():
+    if request.method == 'POST':
+        # Aquí se podrían validar las credenciales más tarde.
+        return redirect(url_for('index'))  # Redirigir a la página principal después del login.
+    return render_template('loggin.html')
+@app.route('/index')
 def index():
     return render_template('index.html')
 
@@ -50,6 +56,7 @@ def registrar_multa():
         return redirect(url_for('index'))
     return render_template('multas.html')
 
+
 @app.route('/informacionLibro', methods=['GET', 'POST'])
 def mostrarInformacion():
     return render_template('informacionLibro.html')
@@ -61,6 +68,7 @@ def registrarPrestamos():
         return redirect(url_for('index'))
     return render_template('registrarPrestamos.html')
 
+
 @app.route('/eliminarPrestamos', methods=['GET', 'POST'])
 def eliminarPrestamos():
     if request.method == 'POST':
@@ -68,25 +76,51 @@ def eliminarPrestamos():
         return redirect(url_for('index'))
     return render_template('eliminarPrestamos.html')
 
-@app.route('/index', methods=['GET'])
-def buscar_libro():
-    # Obtén el parámetro enviado en la URL
-    codigo_libro = request.args.get('codigo', None)
-    
-    if codigo_libro:
-        # Lógica para buscar el libro en la base de datos
-        libro = Prestamo.query.filter_by(libro=codigo_libro).first()
+
+@app.route('/consultarPrestamo', methods=['GET', 'POST'])
+def consultarPrestamo():
+    if request.method == 'POST':
+        flash('prestamo consultado con éxito.')
+        return redirect(url_for('index'))
+    return render_template('consultarPrestamo.html')
+
+
+@app.route('/modificarPrestamo', methods=['GET', 'POST'])
+def modificarPrestamo():
+    if request.method == 'POST':
+        flash('Préstamo modificado con éxito.')
+        return redirect(url_for('index'))
+    return render_template('modificarPrestamo.html')
+
+@app.route('/loggin', methods=['GET', 'POST'])
+def loggin():
+    if request.method == 'POST':
+        codigo = request.form.get("codigo")
+        password = request.form.get("password")
         
-        if libro:
-            # Retorna información del libro si se encuentra
-            return render_template('resultado_busqueda.html', libro=libro)
-        else:
-            flash('No se encontró ningún libro con el código proporcionado.', 'warning')
+        # Consulta en la base de datos para verificar las credenciales
+        usuario = Usuario.query.filter_by(codigo=codigo, password=password).first()
+
+        if usuario:
+            # Si las credenciales son correctas, redirige al index
+            flash('Inicio de sesión exitoso', 'success')
             return redirect(url_for('index'))
+        else: 
+            flash('Código o contraseña incorrectos', 'danger')
+
+    return render_template('loggin.html')
+
+
+@app.route('/buscar', methods=['GET', 'POST'])
+def buscarLibro():
+    libro = None
+    if request.method == 'POST':
+        codigo = request.form.get('codigo')
+        # Buscar el libro en la base de datos
+        libro = Libro.query.filter_by(codigo=codigo).first()
+    return render_template('libros.html', libro=libro)
     
-    # Si no se proporciona un código, redirigir al inicio
-    flash('Por favor, proporciona un código de libro.', 'danger')
-    return redirect(url_for('index'))
+
 
 
 if __name__ == '__main__':
