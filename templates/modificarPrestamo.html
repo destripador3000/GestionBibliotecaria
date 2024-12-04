@@ -14,9 +14,8 @@
             <h1>modificar prestamo</h1>
             <form action="{{ url_for('modificarPrestamo') }}" method="POST">
                 <input type="number" class="form-control mb-3" name="id" placeholder="codigo prestamo" required>
-                <input type="text" class="form-control mb-3" name="libro" placeholder="codigo libro" required>
-                <input type="text" class="form-control mb-3" name="libro" placeholder="codigo estudiante" required>
-                <input type="text" class="form-control mb-3" name="usuario" placeholder="nombre estudiante" required>
+                <input type="text" class="form-control mb-3" name="libro" placeholder="Libro" required>
+                <input type="text" class="form-control mb-3" name="usuario" placeholder="Usuario" required>
                 <input type="date" class="form-control mb-3" name="fecha" placeholder="Fecha (YYYY-MM-DD)" required>
                 <button type="submit" class="btn btn-danger">Registrar Préstamo</button>
             </form>
