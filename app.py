@@ -86,5 +86,31 @@ def modificarPrestamo():
         flash('Préstamo modificado con éxito.')
         return redirect(url_for('index'))
     return render_template('modificarPrestamo.html')
+@app.route('/gestionLibro', methods=['GET', 'POST'])
+def gestionLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('gestionLibro.html')
+@app.route('/agregarLibro', methods=['GET', 'POST'])
+def agregarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('agregarLibro.html')
+@app.route('/eliminarLibro', methods=['GET', 'POST'])
+def eliminarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('eliminarLibro.html')
+
+@app.route('/modificarLibro', methods=['GET', 'POST'])
+def modificarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('modificarLibro.html')
+@app.route('/consultarLibro', methods=['GET', 'POST'])
+def consultarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('consultarLibro.html')
 if __name__ == '__main__':
     app.run(debug=True)

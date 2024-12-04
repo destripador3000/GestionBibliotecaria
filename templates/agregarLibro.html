@@ -11,17 +11,17 @@
     <!-- Contenedor para centrar el contenido -->
     <div class="d-flex justify-content-center align-items-center content-wrapper">
         <div class="text-center content-box">
-            <h1>modificar prestamo</h1>
-            <form action="{{ url_for('modificarPrestamo') }}" method="POST">
-                <input type="number" class="form-control mb-3" name="id" placeholder="codigo prestamo" required>
-                <input type="text" class="form-control mb-3" name="libro" placeholder="codigo libro" required>
-                <input type="text" class="form-control mb-3" name="libro" placeholder="codigo estudiante" required>
-                <input type="text" class="form-control mb-3" name="usuario" placeholder="nombre estudiante" required>
-                <input type="date" class="form-control mb-3" name="fecha" placeholder="Fecha (YYYY-MM-DD)" required>
-                <button type="submit" class="btn btn-danger">Registrar Préstamo</button>
+            <h1>agregar libro</h1>
+            <form action="{{ url_for('agregarLibro') }}" method="POST">
+                <input type="text" class="form-control mb-3"  placeholder="id libro" required>
+                <input type="text" class="form-control mb-3" name="libro" placeholder="nombre Libro" required>
+                <input type="text" class="form-control mb-3" name="libro" placeholder="autor" required>
+                <input type="text" class="form-control mb-3" name="libro" placeholder="estado" required>
+
+                <button type="submit" class="btn btn-danger">agregar Libro</button>
             </form>
             <a href="{{ url_for('index') }}" class="btn btn-light">Inicio</a>
-            <a href="{{ url_for('registrar_prestamo') }}" class="btn btn-light">volver</a>
+            <a href="{{ url_for('gestionLibro') }}" class="btn btn-light">volver</a>
 
         </div>
     </div>
