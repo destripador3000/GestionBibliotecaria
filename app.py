@@ -2,7 +2,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
 from datetime import datetime
-from models import Prestamo, db, Libro, Usuario  # Importa db desde models.py
+from models import Prestamo, db, Libro, Usuario, Estudiante, Multa # Importa db desde models.py
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -16,7 +16,7 @@ with app.app_context():
 @app.route('/', methods=['GET', 'POST'])
 def logginPrincipal():
     if request.method == 'POST':
-        # Aquí se podrían validar las credenciales más tarde.
+        # Aquí se validan las credenciales
         return redirect(url_for('index'))  # Redirigir a la página principal después del login.
     return render_template('loggin.html')
 @app.route('/index')
@@ -26,9 +26,10 @@ def index():
 @app.route('/registrar_prestamo', methods=['GET', 'POST'])
 def registrar_prestamo():
     if request.method == 'POST':
-        libro = request.form['libro']
-        usuario = request.form['usuario']
-        fecha = request.form['fecha']
+        libroCodigo = request.form.get('libro')
+        codigo = request.form.get('codigo')  # El código del estudiante
+        nombre=request.form.get('nombre') #Nombre del estudiante
+        fecha = request.form.get('fecha') #fecha de creación
 
         # Validar la fecha
         try:
@@ -37,29 +38,103 @@ def registrar_prestamo():
             flash('Fecha no válida. Usa el formato YYYY-MM-DD.', 'danger')
             return redirect(url_for('registrar_prestamo'))
 
-        # Crear un nuevo préstamo y guardarlo en la base de datos
-        nuevo_prestamo = Prestamo(libro=libro, usuario=usuario, fecha=fecha)
+        # Verificar si el código del estudiante existe en la base de datos
+        c_estudiante = Estudiante.query.filter_by(codigo=codigo).first()  # Consultamos por el código del estudiante
+        n_estudiante = Estudiante.query.filter_by(nombre=nombre).first()  # Consultamos por el nombre del estudiante
+      
+    
+        if not c_estudiante and n_estudiante:
+            flash('El estudiante no existe en la base de datos.', 'danger') # aqui se genera el aviso de alerta si no existe el estudiante
+            return "El estudiante no existe en la base de datos."
+        libroCodigo = int(libroCodigo) 
+        libro = Libro.query.filter_by(codigo=libroCodigo).first()
+        if not libro:
+            flash('El libro no existe en la base de datos.', 'danger')
+            return redirect(url_for('registrar_prestamo'))
+
+        nuevo_prestamo = Prestamo(libro=libro.codigo, usuario=c_estudiante.nombre, fecha=fecha)
         db.session.add(nuevo_prestamo)
         db.session.commit()
 
-        flash('Préstamo registrado con éxito.', 'success')
+        flash('Préstamo registrado con éxito.', 'success') #aqui se genera el aviso de alerta si el prestamo se registra exitosamente
         return redirect(url_for('registrar_prestamo'))
 
-    # Obtener todos los préstamos para mostrarlos en el template
+
+    # Si es una solicitud GET, solo se renderiza el formulario
     prestamos = Prestamo.query.all()
     return render_template('prestamos.html', prestamos=prestamos)
-
+   
 @app.route('/registrar_multa', methods=['GET', 'POST'])
 def registrar_multa():
     if request.method == 'POST':
+        libro = request.form.get('libro')  # Código del libro
+        estudiante = request.form.get('estudiante')  # Nombre del estudiante
+        codigo = request.form.get('codigo')  # Código del estudiante
+        fecha_creacion = request.form.get('fecha_creacion')  # Fecha de creación de la multa
+        fecha_creacion = datetime.strptime(fecha_creacion, '%Y-%m-%d')
+        # Crear la nueva multa
+        nueva_multa = Multa(libro=libro, usuario=estudiante, codigo=codigo, fecha_creacion=fecha_creacion)
+        db.session.add(nueva_multa)
+        db.session.commit()
+
+        # Mensaje de éxito
+        flash('Multa registrada con éxito.', 'success')
+        return redirect(url_for('consultarMulta'))  # Redirigir a la vista de consultar multas
+        
+    multas = Multa.query.all()
+        
+    return render_template('multas.html', multas=multas) #Renderiza a la pagina de multas
+
+@app.route('/gestionMulta', methods=['GET', 'POST'])
+def gestionMulta():
+    if request.method == 'POST':
         flash('Multa registrada con éxito.')
         return redirect(url_for('index'))
-    return render_template('multas.html')
+    return render_template('gestionMulta.html')
+
+@app.route('/eliminarMulta', methods=['GET', 'POST'])
+def eliminarMulta():
+    if request.method == 'POST':
+        # Obtener el código del libro desde el formulario
+        codigo = request.form.get('codigo')  # El campo en el formulario es "Préstamo"
+        # Validar que el código no esté vacío
+        if not codigo:
+            return "Por favor ingresa un código de libro válido", 400
+        try:
+            # Buscar el libro en la base de datos por código
+            libro = Libro.query.filter_by(codigo=codigo).first()  # Filtrar por el código
+            # Verificar si el libro existe
+            if not libro:
+                return "El libro con ese código no existe", 404
+            # Eliminar el libro
+            db.session.delete(libro)
+            db.session.commit()  # Realizar la transacción en la base de datos
+            flash("El libro ha sido eliminado", "danger")
+            return redirect(url_for('index'))  # Redirigir a la página principal después de eliminar el libro
+        except Exception as e:
+            # Si ocurre un error, devolver un mensaje
+            return f"Error al eliminar el libro: {str(e)}", 500
+    return render_template('eliminarMulta.html')
+
+@app.route('/consultarMulta', methods=['GET', 'POST'])
+def consultarMulta():
+    # Consultar únicamente los datos de la tabla Prestamo
+    multa = db.session.query(
+        Multa.id.label('id'),
+        Multa.libro.label('libro'), 
+        Multa.usuario.label('usuario'),
+        Multa.codigo.label('codigo'),
+        Multa.fecha_creacion.label('fecha_creacion')
+
+    ).all()
+    
+    # Renderizar la plantilla con los datos
+    return render_template('consultarMulta.html', multa=multa)  #Aqui renderiza a la pagina de Consultar la multa.
 
 
 @app.route('/informacionLibro', methods=['GET', 'POST'])
 def mostrarInformacion():
-    return render_template('informacionLibro.html')
+    return render_template('informacionLibro.html') #Aqui devuelve la información del
 
 @app.route('/registrarPrestamos', methods=['GET', 'POST'])
 def registrarPrestamos():
@@ -72,19 +147,39 @@ def registrarPrestamos():
 @app.route('/eliminarPrestamos', methods=['GET', 'POST'])
 def eliminarPrestamos():
     if request.method == 'POST':
-        flash('Préstamo eliminado con éxito.')
-        return redirect(url_for('index'))
-    return render_template('eliminarPrestamos.html')
-
+        prestamo_id = request.form.get('codigo')  # Recoge el ID o código del préstamo desde el formulario
+        # Validar que el campo no esté vacío y sea numérico
+        if not prestamo_id or not prestamo_id.isdigit():
+            flash('Por favor, ingresa un ID válido.', 'danger')
+            return redirect(url_for('prestamos'))
+        # Buscar el préstamo en la base de datos
+        prestamo = Prestamo.query.filter_by(id=prestamo_id).first()
+        if prestamo:
+            # Eliminar el préstamo
+            db.session.delete(prestamo)
+            db.session.commit()
+            return 'Préstamo eliminado con éxito.'
+        else:
+            # Si no se encuentra el préstamo
+            return 'Préstamo no encontrado.'
+      
+    # Renderizar el formulario de eliminación
+    return render_template('consultarPrestamo.html')
 
 @app.route('/consultarPrestamo', methods=['GET', 'POST'])
 def consultarPrestamo():
-    if request.method == 'POST':
-        flash('prestamo consultado con éxito.')
-        return redirect(url_for('index'))
-    return render_template('consultarPrestamo.html')
+    # Consultar únicamente los datos de la tabla Prestamo
+    prestamos = db.session.query(
+        Prestamo.id.label('id'),
+        Prestamo.libro.label('libro'),  # Aquí obtienes el identificador del libro
+        Prestamo.usuario.label('usuario'),
+        Prestamo.fecha.label('fecha')
+    ).all()
+    
+    # Renderizar la plantilla con los datos
+    return render_template('consulta.html', prestamos=prestamos)
 
-
+   
 @app.route('/modificarPrestamo', methods=['GET', 'POST'])
 def modificarPrestamo():
     if request.method == 'POST':
@@ -97,10 +192,8 @@ def loggin():
     if request.method == 'POST':
         codigo = request.form.get("codigo")
         password = request.form.get("password")
-        
         # Consulta en la base de datos para verificar las credenciales
         usuario = Usuario.query.filter_by(codigo=codigo, password=password).first()
-
         if usuario:
             # Si las credenciales son correctas, redirige al index
             flash('Inicio de sesión exitoso', 'success')
@@ -115,12 +208,91 @@ def loggin():
 def buscarLibro():
     libro = None
     if request.method == 'POST':
-        codigo = request.form.get('codigo')
+        nombre = request.form.get('nombre')
         # Buscar el libro en la base de datos
-        libro = Libro.query.filter_by(codigo=codigo).first()
-    return render_template('libros.html', libro=libro)
+        libro = Libro.query.filter_by(nombre=nombre).first()
+        return render_template('libros.html', libro=libro)
+    else:
+        return "No existe el libro"
     
 
+@app.route('/gestionLibro', methods=['GET', 'POST'])
+def gestionLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('gestionLibro.html')
+
+@app.route('/agregarLibro', methods=['GET', 'POST'])
+def agregarLibro():
+    
+    if request.method == 'POST':
+        codigo = request.form.get('codigo')
+        nombre = request.form.get('nombre')
+        autor = request.form.get('autor')
+        # Crear una nueva instancia del modelo Libro
+        nuevo_libro = Libro(codigo=codigo, nombre=nombre, autor=autor, disponibilidad='si')  # Incluye 'disponibilidad' si es relevante
+    
+        db.session.add(nuevo_libro)
+        db.session.commit()
+    
+        print(f"El codigo es {codigo} nombre: {nombre} autor: {autor}")
+       
+    return render_template('agregarLibro.html')
+
+
+
+@app.route('/eliminarLibro', methods=['GET', 'POST'])
+def eliminarLibro():
+    if request.method == 'POST':
+        # Obtener el código del libro desde el formulario
+        codigo = request.form.get('codigo')  # El campo en el formulario es "Préstamo"
+        # Validar que el código no esté vacío
+        if not codigo:
+            return "Por favor ingresa un código de libro válido", 400
+        try:
+            # Buscar el libro en la base de datos por código
+            libro = Libro.query.filter_by(codigo=codigo).first()  # Filtrar por el código
+            # Verificar si el libro existe
+            if not libro:
+                return "El libro con ese código no existe", 404
+            # Eliminar el libro
+            db.session.delete(libro)
+            db.session.commit()  # Realizar la transacción en la base de datos
+            flash("El libro ha sido eliminado", "danger")
+            return redirect(url_for('index'))  # Redirigir a la página principal después de eliminar el libro
+        except Exception as e:
+            # Si ocurre un error, devolver un mensaje
+            return f"Error al eliminar el libro: {str(e)}", 500
+    return render_template('eliminarLibro.html')
+
+
+
+@app.route('/modificarLibro', methods=['GET', 'POST'])
+def modificarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('modificarLibro.html')
+
+@app.route('/consultarLibro', methods=['GET', 'POST'])
+def consultarLibro():
+    if request.method == 'POST':
+        return redirect(url_for('index')) 
+    return render_template('consultarLibro.html')
+
+
+@app.route('/consultarLibro2', methods=['GET', 'POST'])
+def consultarLibro2():
+    # Consultar únicamente los datos de la tabla Prestamo
+    libro = db.session.query(
+        Libro.id.label('id'),
+        Libro.codigo.label('codigo'),
+        Libro.nombre.label('nombre'),  # Aquí obtienes el identificador del libro
+        Libro.autor.label('autor'),
+        Libro.disponibilidad.label('disponibilidad'),
+    ).all()
+    
+    # Renderizar la plantilla con los datos
+    return render_template('consultarLibro2.html', libro=libro)
 
 
 if __name__ == '__main__':
